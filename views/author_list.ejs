@@ -9,7 +9,7 @@
               <h1><%= title %></h1>
                 <ul>
                     <% if (author_list) { author_list.forEach(author =>  { %>
-                        <li><a href=<%= author.url %>><%= author.name %></a> (<%= author.date_of_birth %> - <%= author.date_of_death %>)</li>
+                        <li><a href=<%= author.url %>><%= author.name %></a> (<%= author.lifespan %>)</li>
                     <% })} else { %>
                         <li>There are no authors</li>
                     <% } %>
