@@ -48,8 +48,8 @@ exports.genre_detail = function(req, res, next) {
 
 // Display Genre create form on GET.
 exports.genre_create_get = function(req, res, next) {
-    res.render('genre_form', { title: 'Create Genre' });
-  };
+  res.render('genre_form', { title: 'Create Genre' });
+};
   
 
 // Handle Genre create on POST.
@@ -102,13 +102,53 @@ exports.genre_create_post =  [
 
 
 // Display Genre delete form on GET.
-exports.genre_delete_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: Genre delete GET');
+exports.genre_delete_get = function(req, res, next) {
+
+  async.parallel({
+      genre: function(callback) {
+          Genre.findById(req.params.id).exec(callback)
+      },
+      books: function(callback) {
+          Book.find({ 'genre': req.params.id }).exec(callback)
+      },
+  }, function(err, results) {
+      if (err) { return next(err); }
+      if (results.genre==null) { // No results.
+          res.redirect('/catalog/genres');
+      }
+      // Successful, so render.
+      res.render('genre_delete', { title: 'Delete Genre', genre: results.genre, books: results.books } );
+  });
+
 };
 
 // Handle Genre delete on POST.
-exports.genre_delete_post = function(req, res) {
-    res.send('NOT IMPLEMENTED: Genre delete POST');
+exports.genre_delete_post = function(req, res, next) {
+
+  async.parallel({
+      author: function(callback) {
+        Genre.findById(req.body.genreid).exec(callback)
+      },
+      books: function(callback) {
+        Book.find({ 'genre': req.body.genreid }).exec(callback)
+      },
+  }, function(err, results) {
+      if (err) { return next(err); }
+      // Success
+      if (results.books.length > 0) {
+          // Genre is linked to books. Render in same way as for GET route.
+          res.render('genre_delete', { title: 'Delete Genre', genre: results.genre, books: results.books } );
+          return;
+      }
+      else {
+          // Genre has no books. Delete object and redirect to the list of books.
+          Genre.findByIdAndRemove(req.body.genreid, function deleteAuthor(err) {
+              if (err) { return next(err); }
+              // Success - go to book list
+              res.redirect('/catalog/genres')
+          })
+      }
+  });
 };
 
 // Display Genre update form on GET.

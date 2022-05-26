@@ -6,14 +6,44 @@
         <div class="row">
             <%- include('layout'); -%>
             <div class="col-sm-10">
-              <h1><%= title %>: <%= book.name %></h1>
-              <p>Do you really want to delete this Book?</p>
-                <form method="POST" action="">
-                    <div class="form-group">
-                        <input id="bookid" class="form-control" type="hidden" name="bookid" required="true" value=<%= book._id %> >
-                    </div>
-                    <button class="btn btn-primary" type="submit">Delete</button>
-                </form>
+              <h1><%= title %>: <%= book.title %></h1>
+              <p><strong>Author: <a href=<%= book.author.url %>><%= book.author.name %></a></strong></p>
+              <% if (book_instances.length) { %>
+                  <p><strong>Delete the following book instances before attempting to delete this book.</strong></p>
+                  <div style="margin-left:20px;margin-top:20px">
+                    <h4>Book Instances</h4>
+                    <dl>
+                        <% book_instances.forEach(bookinstance => { %>
+                            <dt>
+                                <a href=<%= bookinstance.url %> ><%= bookinstance._id %></a>
+                            </dt>
+                            <dd>
+                                <p><strong>Imprint: </strong><%= bookinstance.imprint %></p>
+                                <p><strong>Status: </strong>
+                                    <% if (bookinstance.status == 'Available') { %>
+                                        <span class="text-success"><%= bookinstance.status %></span>
+                                    <% } else if (bookinstance.status == 'Maintenance') { %>
+                                        <span class="text-danger"><%= bookinstance.status %></span>
+                                    <% } else { %>
+                                        <span class="text-warning"><%= bookinstance.status %></span>
+                                    <% } %>
+                                    <% if (bookinstance.status != 'Available') { %>
+                                        <p><strong>Due back: </strong><%= bookinstance.due_back_formatted %></p>
+                                    <% } %>
+                                  </p>
+                            </dd>
+                        <% }) %>
+                    </dl>
+                  </div>
+              <% } else { %>
+                  <p>Do you really want to delete this Book?</p>
+                  <form method="POST" action="">
+                      <div class="form-group">
+                          <input id="bookid" class="form-control" type="hidden" name="bookid" required="true" value=<%= book._id %> >
+                      </div>
+                      <button class="btn btn-primary" type="submit">Delete</button>
+                  </form>
+              <% } %>
             </div>
         </div>
     </div>
